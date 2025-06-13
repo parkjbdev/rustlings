@@ -17,6 +17,29 @@ fn abs_all(input: &mut Cow<[i32]>) {
 
 fn main() {
     // You can optionally experiment here.
+    fn abs_all(input: &mut Cow<'_, [i32]>) {
+        for i in 0..input.len() {
+            let v = input[i];
+            if v < 0 {
+                // Clones into a vector if not already owned.
+                input.to_mut()[i] = -v;
+            }
+        }
+    }
+    
+    // No clone occurs because `input` doesn't need to be mutated.
+    let slice = [0, 1, 2];
+    let mut input = Cow::from(&slice[..]);
+    abs_all(&mut input);
+    
+    // Clone occurs because `input` needs to be mutated.
+    let slice = [-1, 0, 1];
+    let mut input = Cow::from(&slice[..]);
+    abs_all(&mut input);
+    
+    // No clone occurs because `input` is already owned.
+    let mut input = Cow::from(vec![-1, 0, 1]);
+    abs_all(&mut input);
 }
 
 #[cfg(test)]
@@ -39,7 +62,7 @@ mod tests {
         let mut input = Cow::from(&vec);
         abs_all(&mut input);
         // TODO: Replace `todo!()` with `Cow::Owned(_)` or `Cow::Borrowed(_)`.
-        assert!(matches!(input, todo!()));
+        assert!(matches!(input, Cow::Borrowed(_)));
     }
 
     #[test]
@@ -52,7 +75,7 @@ mod tests {
         let mut input = Cow::from(vec);
         abs_all(&mut input);
         // TODO: Replace `todo!()` with `Cow::Owned(_)` or `Cow::Borrowed(_)`.
-        assert!(matches!(input, todo!()));
+        assert!(matches!(input, Cow::Owned(_)));
     }
 
     #[test]
@@ -64,6 +87,6 @@ mod tests {
         let mut input = Cow::from(vec);
         abs_all(&mut input);
         // TODO: Replace `todo!()` with `Cow::Owned(_)` or `Cow::Borrowed(_)`.
-        assert!(matches!(input, todo!()));
+        assert!(matches!(input, Cow::Owned(_)));
     }
 }
